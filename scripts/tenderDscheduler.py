@@ -99,31 +99,40 @@ def downloadHandler(data):
         if not url:
             raise ValueError("Missing 'url' in data")
 
-        extension = os.path.splitext(url)[1] or ".bin"
-        fileName = f"{uuid.uuid4()}{extension}"
-        fullPath = os.path.join(config["downloadDirectory"], fileName)
+        provided_id = data.get("id")
+        if not provided_id:
+            raise ValueError("Missing 'id' in data")
 
-        printAndLog(f"[tederD] Downloading from {url} to {fullPath}")
-        response = requests.get(url)
+        # Determine extension and full download path
+        extension = os.path.splitext(url)[1] or ".bin"
+        download_file_name = f"{uuid.uuid4()}{extension}"
+        full_download_path = os.path.join(config["downloadDirectory"], download_file_name)
+
+        printAndLog(f"[tederD] Downloading from {url} to {full_download_path}")
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
 
-        with open(fullPath, "wb") as f:
+        with open(full_download_path, "wb") as f:
             f.write(response.content)
 
-        # Create new instruction for analysis
+        # Prepare new instruction for analysis
         newData = {
-            "id": str(uuid.uuid4()),
+            "id": provided_id,
             "task": "analyze",
-            "downloadedFile": fullPath
+            "url": url,
+            "downloadedFile": full_download_path
         }
-        newFilePath = os.path.join(config["watchDirectory"], f"{newData['id']}.json")
-        with open(newFilePath, "w") as f:
+
+        new_instruction_filename = f"{uuid.uuid4()}.json"
+        new_instruction_path = os.path.join(config["watchDirectory"], new_instruction_filename)
+
+        with open(new_instruction_path, "w") as f:
             json.dump(newData, f)
 
-        printAndLog(f"[tederD] Download successful, new task queued: {newFilePath}")
+        printAndLog(f"[tederD] Download successful, new task queued: {new_instruction_path}")
     except Exception as e:
         printAndLog(f"[tederD] Error in downloadHandler: {e}")
-
+        
 
 def analyzeHandler(data):
     downloadedFile = data.get("downloadedFile", "unknown")
