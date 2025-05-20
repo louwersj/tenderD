@@ -39,7 +39,9 @@ def shutdownHandler(signum, frame):
     printAndLog(f"Received signal {signum}, shutting down gracefully...")
     running = False
     if executor:
-        executor.shutdown(wait=True)
+        printAndLog("[tederD] Shutting down executor")
+        executor.shutdown(wait=True, cancel_futures=True)
+        printAndLog("[tederD] Executor shut down")
 
 
 # === Handlers ===
@@ -148,7 +150,8 @@ def main():
 
             time.sleep(scanIntervalSeconds)
     finally:
-        executor.shutdown(wait=True)
+        printAndLog("[tederD] Shutting down executor.")
+        executor.shutdown(wait=True, cancel_futures=True)
         printAndLog("[tederD] Shutdown complete.")
 
 
