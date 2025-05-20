@@ -180,7 +180,7 @@ def main():
             time.sleep(config["scanIntervalSeconds"])
     finally:
         printAndLog("[tederD] Shutting down executor.")
-        executor.shutdown(wait=True, cancel_futures=True)
+        executor.shutdown(wait=False, cancel_futures=True)
         printAndLog("[tederD] Shutdown complete.")
 
 
