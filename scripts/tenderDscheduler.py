@@ -7,6 +7,7 @@ import shutil
 import uuid
 import requests
 from pathlib import Path
+from urllib.parse import urlparse
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # === Default Configuration Values ===
@@ -100,32 +101,49 @@ def downloadHandler(data):
             raise ValueError("Missing 'url' in data")
 
         originalId = data.get("id")
-        if not id:
+        if not originalId:
             raise ValueError("Missing 'id' in data")
 
-        extension = os.path.splitext(url)[1] or ".bin"
-        fileName = f"{uuid.uuid4()}{extension}"
-        fullPath = os.path.join(config["downloadDirectory"], fileName)
+        # Extract original file name from URL
+        parsed_url = urlparse(url)
+        originalFileName = os.path.basename(parsed_url.path)
+        if not originalFileName:
+            originalFileName = f"unknown_{uuid.uuid4()}.bin"
 
-        printAndLog(f"[tederD] Downloading from {url} to {fullPath}")
+        originalDownloadPath = os.path.join(config["downloadDirectory"], originalFileName)
+
+        printAndLog(f"[tederD] Downloading from {url} to {originalDownloadPath}")
         response = requests.get(url)
         response.raise_for_status()
 
-        with open(fullPath, "wb") as f:
+        # Save file with original filename
+        with open(originalDownloadPath, "wb") as f:
             f.write(response.content)
+
+        # Generate a new unique filename
+        extension = os.path.splitext(originalFileName)[1] or ".bin"
+        newFileName = f"{uuid.uuid4()}{extension}"
+        newFullPath = os.path.join(config["downloadDirectory"], newFileName)
+
+        # Rename the file
+        os.rename(originalDownloadPath, newFullPath)
 
         # Create new instruction for analysis
         newData = {
             "id": originalId,
             "url": url, 
             "task": "analyze",
-            "downloadedFile": fullPath
+            "originalFileName": originalFileName,
+            "renamedFileName": newFileName,
+            "downloadedFile": newFullPath
         }
+
         newFilePath = os.path.join(config["watchDirectory"], f"{newData['id']}.json")
         with open(newFilePath, "w") as f:
             json.dump(newData, f)
 
         printAndLog(f"[tederD] Download successful, new task queued: {newFilePath}")
+
     except Exception as e:
         printAndLog(f"[tederD] Error in downloadHandler: {e}")
 
