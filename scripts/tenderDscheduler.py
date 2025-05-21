@@ -99,6 +99,10 @@ def downloadHandler(data):
         if not url:
             raise ValueError("Missing 'url' in data")
 
+        originalId = data.get("id")
+        if not id:
+            raise ValueError("Missing 'id' in data")
+
         extension = os.path.splitext(url)[1] or ".bin"
         fileName = f"{uuid.uuid4()}{extension}"
         fullPath = os.path.join(config["downloadDirectory"], fileName)
@@ -112,7 +116,8 @@ def downloadHandler(data):
 
         # Create new instruction for analysis
         newData = {
-            "id": str(uuid.uuid4()),
+            "id": originalId,
+            "url": url, 
             "task": "analyze",
             "downloadedFile": fullPath
         }
