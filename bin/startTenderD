@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BASE_DIR="/opt/tenderD"
-CONFIG_DIR="$BASE_DIR/config"
+CONFIG_DIR="$BASE_DIR/conf"
 LOG_DIR="$BASE_DIR/logs"
 DOWNLOAD_DIR="$BASE_DIR/downloads"
 WATCH_DIR="$BASE_DIR/watch"
