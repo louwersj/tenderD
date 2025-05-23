@@ -7,4 +7,4 @@ full single command install can be done using either a curl command or a wget co
 
 **curl command:**
 
-`curl -fsSL https://example.com/script.sh | bash`
+`curl -fsSL https://raw.githubusercontent.com/louwersj/tenderD/refs/heads/main/utils/install.sh | bash`
