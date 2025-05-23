@@ -12,9 +12,9 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # === Default Configuration Values ===
 defaultConfig = {
-    "watchDirectory": "/tmp/",
-    "doneDirectory": "/tmp/done",
-    "downloadDirectory": "/tmp/downloads",
+    "watchDirectory": "/opt/tenderD/watch",
+    "doneDirectory": "/opt/tenderD/done",
+    "downloadDirectory": "/opt/tenderD/downloads",
     "scanIntervalSeconds": 5,
     "parallelProcMax": 4
 }
