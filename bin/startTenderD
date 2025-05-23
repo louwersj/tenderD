@@ -1,0 +1,39 @@
+#!/bin/bash
+
+BASE_DIR="/opt/tenderD"
+CONFIG_DIR="$BASE_DIR/config"
+LOG_DIR="$BASE_DIR/logs"
+DOWNLOAD_DIR="$BASE_DIR/downloads"
+WATCH_DIR="$BASE_DIR/watch"
+CONFIG_FILE="$CONFIG_DIR/config.json"
+LOGFILE="$LOG_DIR/tenderDscheduler.log"
+PYTHON="/usr/bin/python3"
+SCRIPT="$BASE_DIR/script/tenderDscheduler.py"
+
+# Helper for logging
+log() {
+    timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    message="[tenderD] $timestamp - $1"
+    echo "$message"
+    echo "$message" >> "$LOGFILE"
+}
+
+# Create required directories
+log "Checking and creating required directories if missing..."
+mkdir -p "$CONFIG_DIR" "$LOG_DIR" "$DOWNLOAD_DIR" "$WATCH_DIR"
+log "Ensured directories: config, logs, downloads, watch"
+
+# Create config file with full paths
+log "Generating config.json with absolute paths..."
+cat > "$CONFIG_FILE" <<EOF
+{
+    "downloadDirectory": "$DOWNLOAD_DIR",
+    "watchDirectory": "$WATCH_DIR",
+    "logDirectory": "$LOG_DIR"
+}
+EOF
+log "Config file created at $CONFIG_FILE"
+
+# Start Python daemon
+log "Starting tenderDscheduler..."
+exec $PYTHON "$SCRIPT" "$CONFIG_FILE" >> "$LOGFILE" 2>&1
